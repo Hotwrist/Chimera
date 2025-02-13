@@ -86,6 +86,8 @@ elf_data_t *elf;
 chimera_data_t *chimera;
 //--------------------------------------------------------------------------------
 
+// This function helps us modify the ELF executable header. Chimera uses this function
+// to overwrite the original entry point of the ELF file.
 int modify_elf_ehdr()
 {
  	off_t off;
@@ -132,12 +134,15 @@ int modify_elf_ehdr()
   	return SUCCESS;
 }
 
+// This function is self-explanatory. It rewrites the original entry point
+// and lastly, calls modify_elf_ehdr() above, to write the changes to the ELF file.
 int rewrite_entry_point()
 {
   	elf->ehdr.e_entry = chimera->phdr.p_vaddr + chimera->entry;
   	return modify_elf_ehdr();
 }
 
+// This updates the ELF program header
 int update_elf_phdr()
 {
 	off_t off;
@@ -199,6 +204,8 @@ int update_elf_phdr()
   	return SUCCESS;	
 }
 
+// This modifies the ELF segment (executable part of the ELF file) which is also the
+// program header, as it contains regions that are to be loaded into memory during execution.
 int modify_elf_segment()
 {
 	GElf_Phdr phdr;
@@ -240,6 +247,9 @@ int modify_elf_segment()
 	return update_elf_phdr();
 }
 
+// Since we are overwriting the PT_NOTE section, this function helps us to change the name
+// to ours. For this, you can pass in ".chimera" as the chimera section name or the injected
+// section name.
 int modify_section_name()
 {
 	// we don't want the 'length of the original section name' we want to overwrite to
@@ -259,7 +269,10 @@ int modify_section_name()
 	if (elf_getshdrstrndx(elf->e, &shstrndx) != 0) errx(EX_SOFTWARE, "elf_getshdrstrndx() failed: %s.", elf_errmsg(-1));
 
 	scn = NULL;
-	
+
+	// We loop through the sections in the ELF file looking for our target section name
+	// to overwrite with our chimera section name. When we find it, get the section header
+	// offset (shdr.sh_name) and the section header string table offset/start address
 	while((scn = elf_nextscn(elf->e, scn)) != NULL)
 	{
 		if(gelf_getshdr(scn, &shdr) != &shdr) errx(EX_SOFTWARE, "getshdr() failed: %s.", elf_errmsg(-1));
@@ -298,6 +311,8 @@ int modify_section_name()
 	return SUCCESS;
 }
 
+// After making changes to the ELF section header, we need to save our modifications or
+// the changes we made.
 int update_elf_shdr(Elf_Scn *scn, GElf_Shdr *shdr, size_t sidx)
 {
 	if(!gelf_update_shdr(scn, shdr)) return GELF_UPDATE_ERR;
@@ -399,6 +414,9 @@ int reorder_section_headers()
 	return SUCCESS;
 }
 
+// This function is the starting point for the sections/section headers modificaton
+// of the ELF file sections/section headers. It calls three functions on line 460, 461.
+// and 462 that do this.
 int modify_elf_sections()
 {
 	Elf_Scn *scn;
@@ -449,6 +467,8 @@ int modify_elf_sections()
 	return SUCCESS;
 }
 
+// OFFSET % 4096 must be equal to SECTION_ADDRESS % 4096 according to the Linux ELF standard
+// or law......smile
 void align_section_addr()
 {
 	size_t diff = (chimera->off % sysconf(_SC_PAGESIZE)) - (chimera->section_addr % sysconf(_SC_PAGESIZE));
@@ -562,7 +582,7 @@ int main(int argc, char **argv)
 		return INCOMPLETE_CMDLINE_ARGS_ERR;
 	}
 	
-	// allocate memory to both structs
+	// allocate memory to both structs (586 and 593)
 	elf = (elf_data_t*)malloc(sizeof(elf_data_t));
 	if (!elf) 
 	{
