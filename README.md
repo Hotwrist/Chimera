@@ -1,8 +1,7 @@
 # Chimera
 chimera is a program that injects itself into a Linux ELF program by overwriting the PT_NOTE section of the target ELF file thereby enabling the hacker run malicious code. This malicious code could be a backdoor!
 
-![chimera](https://github.com/user-attachments/assets/f5181bea-72ea-4c7a-9ed6-ea99839ddc87)
-
+![chimera](chimera.png)
 
 ## Features
 
