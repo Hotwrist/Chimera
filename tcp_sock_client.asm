@@ -1,7 +1,7 @@
 ; AUTHOR: John Ebinyi Odey a.k.a Redhound, Giannis, Hotwrist
 ; BIRTH: February 2025
 ; DESCRIPTION:  This Intel x86_64 program is a TCP Socket client that connects to a running
-;		TCP server via port 
+;		TCP server via port 8080.
 
 BITS 64
 
