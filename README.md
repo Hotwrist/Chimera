@@ -30,6 +30,11 @@ make
 ```
 
 ## Usage
+### Generating the payload
+```sh
+nasm -f bin -o payload.bin tcp_socket_client.asm
+```
+
 ### 💎 Injecting a Payload
 ```sh
 ./chimera <target.elf> <payload.bin> ".inject_section" <injected_session_address> <entry point>
@@ -37,9 +42,13 @@ make
 
 ## Example
 ```sh
-./chimera date backdoor.bin ".chimera" 0x600000 -1
+./chimera date payload.bin ".chimera" 0x600000 -1
 ./date
 ```
+
+## NOTE
+This program might not work for ELF binaries that are dynamically linked. This is because the return address becomes dynamic when in execution.
+To overcome this, you can make use of a technique known as HIJACKING GOT ENTRIES. Click on the Youtube link below to watch how to implement this.
 
 ## 🛡️ Legal Disclaimer
 This tool is intended for educational and research purposes **only**. **Do not** use it on unauthorized systems.
