@@ -20,13 +20,13 @@ chimera is a program that injects itself into a Linux ELF program by overwriting
 ### 🔧 Dependencies
 - Linux OS
 - `gcc` (or `clang`)
-- `make`
+- `libelf`
 
 ### 📦 Build
 ```sh
 git clone https://github.com/hotwrist/chimera.git
 cd chimera
-make
+gcc chimera.c -o chimera -lelf
 ```
 
 ## Usage
